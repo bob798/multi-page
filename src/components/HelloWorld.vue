@@ -4,6 +4,7 @@
     <ul>
       <li><a href="/index.html">首页</a></li>
       <li><a href="/about.html">关于我们</a></li>
+      <li><a href="/sign.html">扫码</a></li>
       <li><a href="/some/module.html">子页</a></li>
     </ul>
   </div>

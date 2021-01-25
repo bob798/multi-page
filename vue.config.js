@@ -12,6 +12,7 @@ module.exports = {
     pages: {
         index: createPage('index', '首页'),
         about: createPage('about', '关于我们'),
+        sign: createPage('sign', '扫码签到'),
         // 'some_module': createPage('some/module', '某一个子页面', 'some_module'),
     }
 }

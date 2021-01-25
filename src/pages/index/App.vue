@@ -1,22 +1,25 @@
 <template>
   <div class="back">
-
+    <div class="title">{{ title }}</div>
     <div id="user" class="user-list">
-      <!--      <ul id="userList">-->
-      <ul id="userList" :class="{ 'move': index === imgData.length-1 }" v-for="(item,index) in imgData "
-          v-bind:key="item">
-        <!--        <li><img class="move"></li>-->
-        <li><img :src="item"></li>
-
+      <!--      <ul id="userList" :class="{ 'move': index === imgData.length-1 }" v-for="(item,index) in userListData "-->
+      <ul id="userList" v-for="(item,index) in userListData "
+          v-bind:key="index">
+<!--        <li><img :src="item.headImgUrl"></li>-->
+      <li>{{item.name}}</li>
       </ul>
 
     </div>
     <div class="persons">
-      已签到：{{ persons }}
+      总人数：{{ personTotal }}
     </div>
     <div class="two">
-      <el-button @click="addImage">添加照片</el-button>
-      <el-button   @click="getInfo">获取信息</el-button>
+      <div>
+        <el-button @click="getUerList">获取用户列表</el-button>
+      </div>
+      <div>
+        <el-button @click="getCompanyInfo">获取企业信息</el-button>
+      </div>
       <img class="two-img" src="../../assets/two.png">
       <p>请扫码签到</p>
 
@@ -34,9 +37,11 @@ export default {
       persons: '9',
       id: 1,
       companyName: '',
+      title: '',
       personTotal: '',
       currentPersonTotal: '',
       qrcodeUrl: '',
+      userListData: [],
       imgData: [
         'https://school-1258861085.cos.ap-beijing.myqcloud.com/public/img/3dxM3M84AAcLRQTcb8tttmp_d136b9214a1eae0410ac6842b96801a373732559186b7b44.jpg',
         'https://school-1258861085.cos.ap-beijing.myqcloud.com/public/img/o5RXbWEkXzXsQnZHdNwQtmp_ae2e74467e7cfae37a4669fda70d3c9a193a3de6c649ca84.jpg',
@@ -52,35 +57,72 @@ export default {
   components: {
     HelloWorld
   },
-  activated() {
-    this.getInfo()
+  // created() {
+  //   this.getUerList()
+  //   this.timer = setInterval(this.getUerList,10000)
+  // },
+
+
+  mounted () {
+    this.id = 1
+    if (this.timer) {
+      clearInterval(this.timer);
+    } else {
+      this.timer = setInterval(() => {
+        this.getUerList();
+      },10000)
+    }
+    this.$nextTick(() => {
+      this.getCompanyInfo()
+      this.getUerList()
+    });
+  },
+  // beforeDestroy() {
+  //   clearInterval(this.timer)
+  // },
+  destroyed() {
+    clearInterval(this.timer)
   },
   methods: {
+    init() {
+      this.$nextTick(() => {
+        this.getCompanyInfo()
+        this.getUerList()
+      })
+    },
     addImage() {
-      // var ul = document.getElementById("userList");
-      // var li = document.createElement("li");
-      // var img = document.createElement("img");
-      // img.setAttribute("src","https://school-1258861085.cos.ap-beijing.myqcloud.com/public/img/o5RXbWEkXzXsQnZHdNwQtmp_ae2e74467e7cfae37a4669fda70d3c9a193a3de6c649ca84.jpg")
-      // img.setAttribute("class","move")
-      // li.appendChild(img)
-      // ul.appendChild(li);
-      // $("#userList").trigger("create");
-      // document.querySelector("").appendChild('  <li><img class="move" src="https://school-1258861085.cos.ap-beijing.myqcloud.com/public/img/o5RXbWEkXzXsQnZHdNwQtmp_ae2e74467e7cfae37a4669fda70d3c9a193a3de6c649ca84.jpg"></li>')
       this.imgData.unshift('https://school-1258861085.cos.ap-beijing.myqcloud.com/public/img/o5RXbWEkXzXsQnZHdNwQtmp_ae2e74467e7cfae37a4669fda70d3c9a193a3de6c649ca84.jpg');
       // this.imgData.unshift('https://school-1258861085.cos.ap-beijing.myqcloud.com/public/img/3dxM3M84AAcLRQTcb8tttmp_d136b9214a1eae0410ac6842b96801a373732559186b7b44.jpg');
     },
-    getInfo() {
+    getCompanyInfo() {
+      console.log('------getCompanyInfo---')
       this.$http({
-        url: this.$http.adornUrl(`/company/info/${this.id}`),
+        url: this.$http.adornUrl(`/app/getCompanyInfo/${this.id}`),
         method: 'get',
 
       }).then(({data}) => {
         if (data && data.code === 0) {
-          this.companyName = data.company.companyName
+          console.log(data)
+          this.companyName = data.company.name
+          this.title = data.company.title
           this.personTotal = data.company.personTotal
           this.currentPersonTotal = data.company.currentPersonTotal
           this.qrcodeUrl = data.company.qrcodeUrl
+          console.log(this.companyName)
 
+        }
+      })
+    },
+    getUerList() {
+      console.log('------execte getUerList---')
+      this.$http({
+        url: this.$http.adornUrl(`/app/getUserList/${this.id}`),
+        method: 'get',
+      }).then(({data}) => {
+        if (data && data.code === 0) {
+
+          this.userListData = data.userList
+          console.log(this.userListData)
         }
       })
     }
@@ -212,6 +254,13 @@ li img {
 
 .two-img {
   width: 100px;
+}
+
+.title {
+  display: block;
+  position: absolute;
+  top: 10%;
+  left: 45%;
 }
 
 </style>
